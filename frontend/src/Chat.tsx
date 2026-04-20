@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useChat } from './useChat'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function Chat() {
   const { messages, send, loading, error } = useChat()
@@ -75,7 +76,22 @@ export default function Chat() {
                 lineHeight: 1.6
               }}
             >
-              {m.role === 'user' ? m.content : <ReactMarkdown>{m.content || '...'}</ReactMarkdown>}
+              {m.role === 'user' ? (
+                m.content
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ children }) => <h1 style={{ fontSize: 18, color: '#1a1a1a', margin: '8px 0' }}>{children}</h1>,
+                    h2: ({ children }) => <h2 style={{ fontSize: 16, color: '#1a1a1a', margin: '6px 0' }}>{children}</h2>,
+                    h3: ({ children }) => <h3 style={{ fontSize: 15, color: '#1a1a1a', margin: '4px 0' }}>{children}</h3>,
+                    p: ({ children }) => <p style={{ margin: '4px 0', color: '#1a1a1a' }}>{children}</p>,
+                    li: ({ children }) => <li style={{ color: '#1a1a1a' }}>{children}</li>
+                  }}
+                >
+                  {m.content || '...'}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         ))}

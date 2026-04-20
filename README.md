@@ -14,7 +14,7 @@ A streaming chatbot built with React, TypeScript and the Anthropic Claude API.
 
 ## Live Demo
 
-https://d2p1o8buk0c2vq.cloudfront.net
+https://ai-demo.jduke.org
 
 ## AWS Architecture
 
