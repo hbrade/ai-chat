@@ -12,6 +12,30 @@ A streaming chatbot built with React, TypeScript and the Anthropic Claude API.
 * [anthropic-ai](https://github.com/anthropics/anthropic-sdk-typescript#readme) - Claude SDK for TypeScript
 * [express](https://expressjs.com/) - Fast, unopinionated, minimalist web framework for Node.js
 
+## Live Demo
+
+https://d2p1o8buk0c2vq.cloudfront.net
+
+## AWS Architecture
+
+- Frontend: S3 + Static Website Hosting
+- Backend: AWS Lambda (Node.js 20)
+- API: API Gateway HTTP API
+- AI: Anthropic Claude API
+
+```mermaid
+graph LR
+    A[Browser] -->|HTTP| B[S3 + CloudFront\nReact Frontend]
+    B -->|HTTPS| C[API Gateway]
+    C -->|Invoke| D[Lambda\nNode.js 20]
+    D -->|API Call| E[Anthropic API\nClaude]
+    style A fill: #555555, color: white
+    style B fill: #1D9E75, color: white
+    style C fill: #BA7517, color: white
+    style D fill: #534AB7, color: white
+    style E fill: #993C1D, color: white         
+```
+
 ## Setup
 
 1. Clone the repo
