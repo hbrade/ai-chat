@@ -1,42 +1,159 @@
-import { useState } from 'react';
-import { useChat } from './useChat';
+import { useState } from 'react'
+import { useChat } from './useChat'
 
 export default function Chat() {
-    const { messages, send, loading } = useChat();
-    const [input, setInput] = useState('');
+  const { messages, send, loading, error } = useChat()
+  const [input, setInput] = useState('')
 
-    return (
-        <div style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'sans-serif' }}>
-            <h2>AI Assistant</h2>
-            <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16, minHeight: 300, marginBottom: 16 }}>
-                {messages.map((m, i) => (
-                    <div key={i} style={{ marginBottom: 12, textAlign: m.role === 'user' ? 'right' : 'left' }}>
-            <span style={{
-                background: m.role === 'user' ? '#1B4F8A' : '#f0f0f0',
-                color: m.role === 'user' ? '#fff' : '#000',
-                padding: '8px 12px', borderRadius: 12, display: 'inline-block'
-            }}>
+  const handleSend = () => {
+    if (!input.trim() || loading) return
+    send(input)
+    setInput('')
+  }
+
+  return (
+    <div
+      style={{
+        maxWidth: 700,
+        margin: '0 auto',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'system-ui, sans-serif',
+        padding: '0 16px'
+      }}
+    >
+      <div
+        style={{
+          padding: '16px 0',
+          borderBottom: '1px solid #eee',
+          marginBottom: 16
+        }}
+      >
+        <h2 style={{ margin: 0, color: '#1B4F8A' }}>React & AWS Assistant</h2>
+        <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Powered by Anthropic Claude</p>
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          paddingBottom: 16
+        }}
+      >
+        {messages.length === 0 && (
+          <div
+            style={{
+              textAlign: 'center',
+              color: '#aaa',
+              marginTop: 60,
+              fontSize: 14
+            }}
+          >
+            Stell eine Frage zu React, TypeScript oder AWS...
+          </div>
+        )}
+
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
+              marginBottom: 12
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '75%',
+                background: m.role === 'user' ? '#1B4F8A' : '#f0f4f8',
+                color: m.role === 'user' ? '#fff' : '#1a1a1a',
+                padding: '10px 14px',
+                borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                fontSize: 14,
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap'
+              }}
+            >
               {m.content || '...'}
-            </span>
-                    </div>
-                ))}
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && !loading && (send(input), setInput(''))}
-                    placeholder="Nachricht eingeben..."
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #ddd' }}
-                />
-                <button
-                    onClick={() => { send(input); setInput(''); }}
-                    disabled={loading || !input}
-                    style={{ padding: '8px 16px', background: '#1B4F8A', color: '#fff', border: 'none', borderRadius: 8 }}
-                >
-                    Senden
-                </button>
+          </div>
+        ))}
+
+        {loading && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
+            <div
+              style={{
+                background: '#f0f4f8',
+                padding: '10px 14px',
+                borderRadius: '18px 18px 18px 4px',
+                fontSize: 14,
+                color: '#888'
+              }}
+            >
+              Denkt nach...
             </div>
-        </div>
-    );
+          </div>
+        )}
+
+        {error && (
+          <div
+            style={{
+              background: '#fff0f0',
+              border: '1px solid #ffcccc',
+              borderRadius: 8,
+              padding: '10px 14px',
+              fontSize: 13,
+              color: '#cc0000',
+              marginBottom: 12
+            }}
+          >
+            Fehler: {error}. Bitte nochmal versuchen.
+          </div>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          padding: '16px 0',
+          borderTop: '1px solid #eee'
+        }}
+      >
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSend()}
+          placeholder="Frage zu React, TypeScript oder AWS..."
+          disabled={loading}
+          style={{
+            flex: 1,
+            color: 'black',
+            padding: '10px 14px',
+            borderRadius: 24,
+            border: '1px solid #ddd',
+            fontSize: 14,
+            outline: 'none',
+            background: loading ? '#f9f9f9' : '#fff'
+          }}
+        />
+        <button
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+          style={{
+            padding: '10px 20px',
+            background: loading || !input.trim() ? '#ccc' : '#1B4F8A',
+            color: 'white',
+            border: 'none',
+            borderRadius: 24,
+            fontSize: 14,
+            cursor: loading || !input.trim() ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {loading ? '...' : 'Senden'}
+        </button>
+      </div>
+    </div>
+  )
 }
