@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useChat } from './useChat'
+import ReactMarkdown from 'react-markdown'
 
 export default function Chat() {
   const { messages, send, loading, error } = useChat()
@@ -71,11 +72,10 @@ export default function Chat() {
                 padding: '10px 14px',
                 borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                 fontSize: 14,
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap'
+                lineHeight: 1.6
               }}
             >
-              {m.content || '...'}
+              {m.role === 'user' ? m.content : <ReactMarkdown>{m.content || '...'}</ReactMarkdown>}
             </div>
           </div>
         ))}
