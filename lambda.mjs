@@ -10,6 +10,10 @@ export const handler = async event => {
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
+      system: `Du bist ein hilfreicher Assistent für Senior React Engineers. 
+Du hilfst bei React, TypeScript, AWS, GraphQL und modernen Frontend-Architekturen.
+Antworte präzise und mit konkreten Code-Beispielen wenn möglich.
+Antworte immer auf Deutsch.`,
       messages
     })
 
