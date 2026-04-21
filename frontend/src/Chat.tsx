@@ -22,7 +22,10 @@ export default function Chat() {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'system-ui, sans-serif',
-        padding: '0 16px'
+        padding: '0 16px',
+        background: 'white',
+        color: '#1a1a1a',
+        textAlign: 'left'
       }}
     >
       <div

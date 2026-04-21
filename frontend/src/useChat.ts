@@ -13,8 +13,11 @@ export function useChat() {
     setLoading(true)
     setError(null)
 
+    let reply = ''
+    setMessages(m => [...m, { role: 'assistant', content: '' }])
+
     try {
-      const res = await fetch('https://wdsgls47l7.execute-api.eu-central-1.amazonaws.com/prod/chat', {
+      const res = await fetch('https://wglsz532tgnp7ks3klfgjdgshq0ckfwl.lambda-url.eu-central-1.on.aws/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages })
@@ -22,10 +25,29 @@ export function useChat() {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-      const data = await res.json()
-      setMessages(m => [...m, { role: 'assistant', content: data.text }])
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const lines = decoder.decode(value).split('\n')
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              const { text } = JSON.parse(line.slice(6))
+              if (text) {
+                reply += text
+                setMessages(m => [...m.slice(0, -1), { role: 'assistant', content: reply }])
+              }
+            } catch {}
+          }
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Unbekannter Fehler')
+      setMessages(m => m.slice(0, -1))
     } finally {
       setLoading(false)
     }
