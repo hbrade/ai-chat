@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Message = { role: 'user' | 'assistant'; content: string }
+
+const LAMBDA_URL = 'https://wglsz532tgnp7ks3klfgjdgshq0ckfwl.lambda-url.eu-central-1.on.aws/'
 
 function getSessionId() {
   let id = localStorage.getItem('chat-session-id')
@@ -15,7 +17,28 @@ export function useChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sessionLoading, setSessionLoading] = useState(true)
   const sessionId = getSessionId()
+
+  // Session beim Start laden
+  useEffect(() => {
+    async function loadSession() {
+      try {
+        const res = await fetch(`${LAMBDA_URL}?sessionId=${sessionId}`, {
+          method: 'GET'
+        })
+        const data = await res.json()
+        if (data.messages?.length > 0) {
+          setMessages(data.messages)
+        }
+      } catch (err) {
+        console.error('Failed to load session:', err)
+      } finally {
+        setSessionLoading(false)
+      }
+    }
+    loadSession()
+  }, [])
 
   async function send(text: string) {
     const newMessages = [...messages, { role: 'user' as const, content: text }]
@@ -27,7 +50,7 @@ export function useChat() {
     setMessages(m => [...m, { role: 'assistant', content: '' }])
 
     try {
-      const res = await fetch('https://wglsz532tgnp7ks3klfgjdgshq0ckfwl.lambda-url.eu-central-1.on.aws/', {
+      const res = await fetch(LAMBDA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages, sessionId })
@@ -63,5 +86,5 @@ export function useChat() {
     }
   }
 
-  return { messages, send, loading, error }
+  return { messages, send, loading, error, sessionLoading }
 }

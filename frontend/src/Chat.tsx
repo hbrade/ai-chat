@@ -4,13 +4,30 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 export default function Chat() {
-  const { messages, send, loading, error } = useChat()
+  const { messages, send, loading, error, sessionLoading } = useChat()
   const [input, setInput] = useState('')
 
   const handleSend = () => {
     if (!input.trim() || loading) return
     send(input)
     setInput('')
+  }
+
+  if (sessionLoading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          color: '#888',
+          fontSize: 14
+        }}
+      >
+        Gespräch wird geladen...
+      </div>
+    )
   }
 
   return (
