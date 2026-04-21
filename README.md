@@ -16,12 +16,13 @@ A streaming chatbot built with React, TypeScript and the Anthropic Claude API.
 
 https://ai-demo.jduke.org
 
-## AWS Architecture
+## Architecture
 
-- Frontend: S3 + Static Website Hosting
-- Backend: AWS Lambda (Node.js 20)
-- API: API Gateway HTTP API
-- AI: Anthropic Claude API
+- Frontend: React + TypeScript on S3 + CloudFront
+- Backend: AWS Lambda (Node.js 20, Response Streaming)
+- Database: DynamoDB (conversation history)
+- AI: Anthropic Claude API (streaming)
+- Domain: Custom domain via Route 53 + ACM
 
 ```mermaid
 graph LR
