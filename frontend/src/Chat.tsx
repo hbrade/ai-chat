@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useChat } from './useChat'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -6,6 +6,11 @@ import remarkGfm from 'remark-gfm'
 export default function Chat() {
   const { messages, send, loading, error, sessionLoading } = useChat()
   const [input, setInput] = useState('')
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleSend = () => {
     if (!input.trim() || loading) return
@@ -14,178 +19,75 @@ export default function Chat() {
   }
 
   if (sessionLoading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          color: '#888',
-          fontSize: 14
-        }}
-      >
-        Gespräch wird geladen...
-      </div>
-    )
+    return <div className="flex items-center justify-center h-screen text-gray-400 text-sm">Gespräch wird geladen...</div>
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 700,
-        margin: '0 auto',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'system-ui, sans-serif',
-        padding: '0 16px',
-        background: 'white',
-        color: '#1a1a1a',
-        textAlign: 'left'
-      }}
-    >
-      <div
-        style={{
-          padding: '16px 0',
-          borderBottom: '1px solid #eee',
-          marginBottom: 16
-        }}
-      >
-        <h2 style={{ margin: 0, color: '#1B4F8A' }}>React & AWS Assistant</h2>
-        <p style={{ margin: '4px 0 0', color: '#888', fontSize: 13 }}>Powered by Anthropic Claude</p>
+    <div className="max-w-2xl mx-auto h-screen flex flex-col bg-white text-gray-900 px-4">
+      {/* Header */}
+      <div className="py-4 border-b border-gray-200 mb-4">
+        <h2 className="text-xl font-semibold text-blue-900">React & AWS Assistant</h2>
+        <p className="text-xs text-gray-400 mt-1">Powered by Anthropic Claude</p>
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          paddingBottom: 16
-        }}
-      >
-        {messages.length === 0 && (
-          <div
-            style={{
-              textAlign: 'center',
-              color: '#aaa',
-              marginTop: 60,
-              fontSize: 14
-            }}
-          >
-            Stell eine Frage zu React, TypeScript oder AWS...
-          </div>
-        )}
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto pb-4 space-y-3">
+        {messages.length === 0 && <div className="text-center text-gray-400 text-sm mt-16">Stell eine Frage zu React, TypeScript oder AWS...</div>}
 
         {messages.map((m, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
-              marginBottom: 12
-            }}
-          >
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              style={{
-                maxWidth: '75%',
-                background: m.role === 'user' ? '#1B4F8A' : '#f0f4f8',
-                color: m.role === 'user' ? '#fff' : '#1a1a1a',
-                padding: '10px 14px',
-                borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                fontSize: 14,
-                lineHeight: 1.6
-              }}
+              className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
+              ${m.role === 'user' ? 'bg-blue-800 text-white rounded-br-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'}`}
             >
               {m.role === 'user' ? (
                 m.content
               ) : (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    h1: ({ children }) => <h1 style={{ fontSize: 18, color: '#1a1a1a', margin: '8px 0' }}>{children}</h1>,
-                    h2: ({ children }) => <h2 style={{ fontSize: 16, color: '#1a1a1a', margin: '6px 0' }}>{children}</h2>,
-                    h3: ({ children }) => <h3 style={{ fontSize: 15, color: '#1a1a1a', margin: '4px 0' }}>{children}</h3>,
-                    p: ({ children }) => <p style={{ margin: '4px 0', color: '#1a1a1a' }}>{children}</p>,
-                    li: ({ children }) => <li style={{ color: '#1a1a1a' }}>{children}</li>
-                  }}
+                <div
+                  className="prose prose-sm max-w-none
+                  prose-headings:text-gray-900 prose-headings:font-medium
+                  prose-p:text-gray-800 prose-p:my-1
+                  prose-code:bg-gray-200 prose-code:px-1 prose-code:rounded prose-code:text-gray-900
+                  prose-pre:bg-gray-900 prose-pre:text-gray-100
+                  prose-table:text-sm prose-th:bg-gray-200 prose-th:text-gray-900
+                  prose-li:text-gray-800"
                 >
-                  {m.content || '...'}
-                </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content || '...'}</ReactMarkdown>
+                </div>
               )}
             </div>
           </div>
         ))}
 
         {loading && (
-          <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
-            <div
-              style={{
-                background: '#f0f4f8',
-                padding: '10px 14px',
-                borderRadius: '18px 18px 18px 4px',
-                fontSize: 14,
-                color: '#888'
-              }}
-            >
-              Denkt nach...
-            </div>
+          <div className="flex justify-start">
+            <div className="bg-gray-100 px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm text-gray-400">Denkt nach...</div>
           </div>
         )}
 
-        {error && (
-          <div
-            style={{
-              background: '#fff0f0',
-              border: '1px solid #ffcccc',
-              borderRadius: 8,
-              padding: '10px 14px',
-              fontSize: 13,
-              color: '#cc0000',
-              marginBottom: 12
-            }}
-          >
-            Fehler: {error}. Bitte nochmal versuchen.
-          </div>
-        )}
+        {error && <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">Fehler: {error}. Bitte nochmal versuchen.</div>}
+
+        <div ref={bottomRef} />
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          padding: '16px 0',
-          borderTop: '1px solid #eee'
-        }}
-      >
+      {/* Input */}
+      <div className="flex gap-2 py-4 border-t border-gray-200">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
           placeholder="Frage zu React, TypeScript oder AWS..."
           disabled={loading}
-          style={{
-            flex: 1,
-            color: 'black',
-            padding: '10px 14px',
-            borderRadius: 24,
-            border: '1px solid #ddd',
-            fontSize: 14,
-            outline: 'none',
-            background: loading ? '#f9f9f9' : '#fff'
-          }}
+          className="flex-1 px-4 py-2.5 rounded-full border border-gray-300 text-sm
+            outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+            disabled:bg-gray-50 disabled:text-gray-400"
         />
         <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          style={{
-            padding: '10px 20px',
-            background: loading || !input.trim() ? '#ccc' : '#1B4F8A',
-            color: 'white',
-            border: 'none',
-            borderRadius: 24,
-            fontSize: 14,
-            cursor: loading || !input.trim() ? 'not-allowed' : 'pointer'
-          }}
+          className="px-5 py-2.5 bg-blue-800 text-white rounded-full text-sm
+            hover:bg-blue-700 transition-colors
+            disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           {loading ? '...' : 'Senden'}
         </button>
