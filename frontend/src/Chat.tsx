@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useChat } from './useChat'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { markdownComponents } from './MarkdownComponent.tsx'
 
 export default function Chat() {
   const { messages, send, loading, error, sessionLoading } = useChat()
@@ -23,7 +24,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto h-screen flex flex-col bg-white text-gray-900 px-4">
+    <div className="max-w-4xl mx-auto h-screen flex flex-col bg-white text-gray-900 px-6">
       {/* Header */}
       <div className="py-4 border-b border-gray-200 mb-4">
         <h2 className="text-xl font-semibold text-blue-900">React & AWS Assistant</h2>
@@ -31,37 +32,31 @@ export default function Chat() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto pb-4 space-y-3">
+      <div className="flex-1 overflow-y-auto pb-4 space-y-4">
         {messages.length === 0 && <div className="text-center text-gray-400 text-sm mt-16">Stell eine Frage zu React, TypeScript oder AWS...</div>}
 
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
-              ${m.role === 'user' ? 'bg-blue-800 text-white rounded-br-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'}`}
-            >
-              {m.role === 'user' ? (
-                m.content
-              ) : (
-                <div
-                  className="prose prose-sm max-w-none
-                  prose-headings:text-gray-900 prose-headings:font-medium
-                  prose-p:text-gray-800 prose-p:my-1
-                  prose-code:bg-gray-200 prose-code:px-1 prose-code:rounded prose-code:text-gray-900
-                  prose-pre:bg-gray-900 prose-pre:text-gray-100
-                  prose-table:text-sm prose-th:bg-gray-200 prose-th:text-gray-900
-                  prose-li:text-gray-800"
-                >
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content || '...'}</ReactMarkdown>
-                </div>
-              )}
-            </div>
+            {m.role === 'user' ? (
+              <div
+                className="max-w-[60%] px-4 py-2.5 rounded-2xl rounded-br-sm
+                bg-blue-800 text-white text-sm leading-relaxed"
+              >
+                {m.content}
+              </div>
+            ) : (
+              <div className="w-full text-sm leading-relaxed text-gray-900">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {m.content || '...'}
+                </ReactMarkdown>
+              </div>
+            )}
           </div>
         ))}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm text-gray-400">Denkt nach...</div>
+            <div className="text-sm text-gray-400">Denkt nach...</div>
           </div>
         )}
 
